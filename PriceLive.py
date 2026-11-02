@@ -1,99 +1,73 @@
 #AmirAli Pyrovi
-import random
-import time
-teamlist=[]
-for i in range(1,7):
-    team=input("Enter Your Team Name = ")
-    teamlist.append(team)
-    teamrandom=random.choice(teamlist)
-print("Team Sherkat Konanede ->",teamlist)
-time.sleep(2)
-plalistyer=[]
-for i in range(1,6):
-    player=input("Enter Your Player Name = ")
-    plalistyer.append(player)
-print("Player Sherkat Konanede ->",plalistyer)
-time.sleep(2)
-# ساخت برنامه مسابقات به صورت هفته بندی
-teams_schedule = teamlist.copy()
-random.shuffle(teams_schedule)
-baziha = []
-tedad_team = len(teams_schedule)
-for week in range(tedad_team - 1):
-    week_games = []
-    for j in range(tedad_team // 2):
-        team1 = teams_schedule[j]
-        team2 = teams_schedule[tedad_team - 1 - j]
-        week_games.append((team1, team2))
-    baziha.append(week_games)
-    teams_schedule = (
-        [teams_schedule[0]]
-        + [teams_schedule[-1]]
-        + teams_schedule[1:-1]
-    )
-for i in range(len(baziha)):
-    print("\n========== WEEK", i + 1, "==========")
-    for team1, team2 in baziha[i]:
-        print(team1, " VS ", team2)
-    time.sleep(2)
-#استارت هفته
-time.sleep(2)
-#مشخص کردن هفته و بازي
-for i in range(1, 6):
-    teams = {
-        "Team 1":random.randint(0, 5),
-        "Team 2":random.randint(0, 5)
-    }
-    if teams["Team 1"] > teams["Team 2"]:
-        s = teams["Team 1"] - teams["Team 2"]
-        m = 1
-    elif teams["Team 1"] < teams["Team 2"]:
-        s = teams["Team 2"] - teams["Team 1"]
-        m = 2
-    else:
-        s = teams["Team 2"] - teams["Team 1"]
-        m = 0
-    time.sleep(2)
-    pointp = []
-    for i in plalistyer:
-        point=0
-        print("Pish bini natayeje", "Name ->",i)
-        w = int(input("Gol-Team 1= "))
-        e = int(input("Gol-Team 2 = "))
-        if (w == teams["Team 1"] and e == teams["Team 2"]):
-            point+=10
-        else:
-            point-=2
-        print("Ekhtelaf Gol Do Team ", "Name ->", i)
-        q = int(input("Ekhtelaf = "))
-        if (q == s ):
-            point+=7
-        else:
-            point-=2
-        z = int(input("Bord ya bakht( 1=Team 1___2=Team 2 ) = "))
-        if (z == m):
-            point += 5
-        else:
-            point -= 2
-        pointp.append([i, point])
-        print("Your Points =", point)
-        time.sleep(2)
-    toppoint = 0
-    topname = 0
-    for i in pointp:
-        if (i[1] > toppoint):
-            toppoint = i[1]
-            topname = i[0]
-    print("\n---TOP SHERKAT KONNADE IN WEEK---")
-    time.sleep(1)
-    print("Winner =", topname)
-    time.sleep(1)
-    print("Top Point =", toppoint)
-    #نتيجه بازي اين هفته 
-    print("\n Natije Bazi In Hafte")
-    print("Team 1 = ", teams["Team 1"])
-    print("Team 2 = ", teams["Team 2"])
-    print("Ekhtelaf =", s)
-    time.sleep(2)
-    print("")
-    print("New Week")
+import turtle
+import requests
+url = "https://raw.githubusercontent.com/iran-market/iran-market.github.io/main/data/popular.json"
+screen = turtle.Screen()
+screen.setup(600, 400)
+screen.title("قیمت دلار و طلا")
+screen.bgcolor("#101820")
+t = turtle.Turtle()
+t.hideturtle()
+t.speed(0)
+t.penup()
+def write_text(x, y, text, color, size):
+    t.goto(x, y)
+    t.color(color)
+    t.write(text, align="center", font=("Vazirmatn", size, "bold"))
+def draw_box():
+    t.goto(-240, 160)
+    t.setheading(0)
+    t.pensize(3)
+    t.color("#00D9FF")
+    t.pendown()
+    for i in range(2):
+        t.forward(480)
+        t.right(90)
+        t.forward(320)
+        t.right(90)
+    t.penup()
+def draw_button():
+    t.goto(-90, -120)
+    t.setheading(0)
+    t.color("#00FF99")
+    t.pensize(2)
+    t.pendown()
+    for i in range(2):
+        t.forward(180)
+        t.left(90)
+        t.forward(40)
+        t.left(90)
+    t.penup()
+    write_text(0, -110, "به‌روزرسانی قیمت", "#00FF99", 15)
+def update_price():
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()["data"]
+        dollar = None
+        gold = None
+        for item in data:
+            if item["symbol"] == "USD_IRR_FREE":
+                dollar = item["price"]
+            elif item["symbol"] == "GOLD_18K_IRR":
+                gold = item["price"]
+        dollar_text = format(dollar, ",") if dollar is not None else "ناموجود"
+        gold_text = format(gold, ",") if gold is not None else "ناموجود"
+        t.clear()
+        draw_box()
+        write_text(0, 105, "قیمت لحظه‌ای بازار", "#00D9FF", 25)
+        write_text(0, 45, "قیمت دلار: " + dollar_text + " تومان", "#00FF66", 20)
+        write_text(0, -5, "قیمت طلای ۱۸ عیار: " + gold_text + " تومان", "#FFD54F", 20)
+        draw_button()
+    except Exception as e:
+        print("خطا:", e)
+def click_button(x, y):
+    if -90 <= x <= 90 and -120 <= y <= -80:
+        update_price()
+draw_box()
+write_text(0, 105, "قیمت لحظه‌ای بازار", "#00D9FF", 19)
+write_text(0, 45, "قیمت دلار: ---", "#00FF66", 14)
+write_text(0, -5, "قیمت طلای ۱۸ عیار: ---", "#FFD54F", 14)
+draw_button()
+screen.onclick(click_button)
+turtle.done()
